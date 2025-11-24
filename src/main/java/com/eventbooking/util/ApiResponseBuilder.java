@@ -3,8 +3,6 @@ package com.eventbooking.util;
 import com.eventbooking.common.base.BaseResponse;
 import lombok.NoArgsConstructor;
 
-import java.time.Instant;
-
 @NoArgsConstructor
 public final class ApiResponseBuilder {
 
@@ -13,7 +11,6 @@ public final class ApiResponseBuilder {
         .success(true)
         .message(message)
         .data(data)
-        .timestamp(Instant.now())
         .build();
   }
 }

@@ -69,6 +69,14 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
   })
   public ResponseEntity<Object> handleCustomExceptions(
       BaseException ex, HttpServletRequest request) {
+    // Đối với UnauthorizedException, trả về format đơn giản theo yêu cầu
+    if (ex instanceof UnauthorizedException) {
+      Map<String, Object> body = new LinkedHashMap<>();
+      body.put("success", false);
+      body.put("message", ex.getMessage());
+      return new ResponseEntity<>(body, ex.getHttpStatus());
+    }
+    
     Map<String, Object> body = buildErrorBody(ex, request.getRequestURI());
     return new ResponseEntity<>(body, ex.getHttpStatus());
   }
