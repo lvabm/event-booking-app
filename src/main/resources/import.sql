@@ -26,11 +26,11 @@
 -- 
 -- Hash tạm thời (CẦN THAY THẾ bằng hash hợp lệ):
 -- Để test, hãy chạy SQL UPDATE trong database với hash mới được generate
-INSERT INTO `users` (`id`, `full_name`, `email`, `password`, `avatar`, `role`, `created_at`) VALUES (1, 'Nguyen Van A', 'user1@example.com', '$2a$10$PLACEHOLDER_HASH_NEEDS_TO_BE_GENERATED', NULL, 'USER', '2025-01-01 10:00:00');
-INSERT INTO `users` (`id`, `full_name`, `email`, `password`, `avatar`, `role`, `created_at`) VALUES (2, 'Tran Thi B', 'user2@example.com', '$2a$10$PLACEHOLDER_HASH_NEEDS_TO_BE_GENERATED', NULL, 'USER', '2025-01-02 11:00:00');
-INSERT INTO `users` (`id`, `full_name`, `email`, `password`, `avatar`, `role`, `created_at`) VALUES (3, 'Le Van C', 'user3@example.com', '$2a$10$PLACEHOLDER_HASH_NEEDS_TO_BE_GENERATED', NULL, 'USER', '2025-01-03 12:00:00');
-INSERT INTO `users` (`id`, `full_name`, `email`, `password`, `avatar`, `role`, `created_at`) VALUES (4, 'Pham Thi D', 'user4@example.com', '$2a$10$PLACEHOLDER_HASH_NEEDS_TO_BE_GENERATED', NULL, 'USER', '2025-01-04 13:00:00');
-INSERT INTO `users` (`id`, `full_name`, `email`, `password`, `avatar`, `role`, `created_at`) VALUES (5, 'Lê Văn An', 'admin@example.com', '$2a$10$PLACEHOLDER_HASH_NEEDS_TO_BE_GENERATED', NULL, 'ADMIN', '2025-01-05 14:00:00');
+INSERT INTO `users` (`id`, `full_name`, `email`, `password`, `avatar`, `role`, `created_at`) VALUES (1, 'Nguyen Van A', 'user1@example.com', '$2a$10$0Om.lUnjY7p2EP7O9GbtPu7Jh5ZW8MgCSFRTdBrSMXv0hSoL212JC', NULL, 'USER', '2025-01-01 10:00:00');
+INSERT INTO `users` (`id`, `full_name`, `email`, `password`, `avatar`, `role`, `created_at`) VALUES (2, 'Tran Thi B', 'user2@example.com', '$2a$10$0Om.lUnjY7p2EP7O9GbtPu7Jh5ZW8MgCSFRTdBrSMXv0hSoL212JC', NULL, 'USER', '2025-01-02 11:00:00');
+INSERT INTO `users` (`id`, `full_name`, `email`, `password`, `avatar`, `role`, `created_at`) VALUES (3, 'Le Van C', 'user3@example.com', '$2a$10$0Om.lUnjY7p2EP7O9GbtPu7Jh5ZW8MgCSFRTdBrSMXv0hSoL212JC', NULL, 'USER', '2025-01-03 12:00:00');
+INSERT INTO `users` (`id`, `full_name`, `email`, `password`, `avatar`, `role`, `created_at`) VALUES (4, 'Pham Thi D', 'user4@example.com', '$2a$10$0Om.lUnjY7p2EP7O9GbtPu7Jh5ZW8MgCSFRTdBrSMXv0hSoL212JC', NULL, 'USER', '2025-01-04 13:00:00');
+INSERT INTO `users` (`id`, `full_name`, `email`, `password`, `avatar`, `role`, `created_at`) VALUES (5, 'Lê Văn An', 'admin@example.com', '$2a$10$0Om.lUnjY7p2EP7O9GbtPu7Jh5ZW8MgCSFRTdBrSMXv0hSoL212JC', NULL, 'ADMIN', '2025-01-05 14:00:00');
 
 
 -- ================================
