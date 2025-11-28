@@ -4,9 +4,9 @@ import com.eventbooking.security.JwtAuthenticationFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.authentication.AuthenticationManager; // Import cần thiết
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
-import org.springframework.security.authentication.ProviderManager; // Import cần thiết
+import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -18,7 +18,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import jakarta.servlet.http.HttpServletResponse;
-import java.util.Collections; // Import cần thiết
+import java.util.Collections;
 
 @RequiredArgsConstructor
 @Configuration
@@ -29,7 +29,7 @@ public class SpringSecurityConfig {
 
   private final UserDetailsService userDetailsService;
 
-  // 1. Cấu hình Filter Chain chính (Giữ nguyên)
+  // 1. Cấu hình Filter Chain chính
   @Bean
   public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
     http
@@ -42,8 +42,8 @@ public class SpringSecurityConfig {
             auth ->
                 auth.requestMatchers("/api/v1/auth/**").permitAll().anyRequest().authenticated())
         // 4. Cấu hình Provider
-        .authenticationProvider(authenticationProvider()) // Vẫn sử dụng Provider đã cấu hình
-        // 5. Xử lý Ngoại lệ (Authentication/Access Denied) - Rất chuẩn mực!
+        .authenticationProvider(authenticationProvider())
+        // 5. Xử lý Ngoại lệ (Authentication/Access Denied)
         .exceptionHandling(
             ex ->
                 ex.authenticationEntryPoint(
