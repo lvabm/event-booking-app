@@ -16,4 +16,8 @@ public final class ApiResponseBuilder {
         .timestamp(Instant.now())
         .build();
   }
+
+  public static BaseResponse<?> error(String message, Object errors) {
+    return BaseResponse.builder().success(false).message(message).errors(errors).build();
+  }
 }

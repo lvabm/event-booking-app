@@ -1,87 +1,80 @@
 package com.eventbooking.exception;
 
 import com.eventbooking.common.base.BaseException;
+import com.eventbooking.common.base.BaseResponse;
+import com.eventbooking.util.ApiResponseBuilder;
 import jakarta.servlet.http.HttpServletRequest;
-import org.springframework.context.support.DefaultMessageSourceResolvable;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-import org.springframework.web.context.request.WebRequest;
-import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
-import java.time.LocalDateTime;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @RestControllerAdvice
-public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
+public class GlobalExceptionHandler {
 
-  // Phương thức chung để xây dựng Body phản hồi lỗi cho các Custom Exception
-  private Map<String, Object> buildErrorBody(BaseException ex, String path) {
-    Map<String, Object> body = new LinkedHashMap<>();
-    body.put("timestamp", LocalDateTime.now());
-    body.put("status", ex.getHttpStatus().value());
-    body.put("errorCode", ex.getErrorCode());
-    body.put("message", ex.getMessage());
-    body.put("path", path);
-    return body;
-  }
+  // Record/Class nội bộ 1: Cấu trúc cho lỗi Validation (field: message)
+  private record FieldErrorDetail(String field, String message) {}
 
-  // 1. Bắt lỗi validation (DTO & Entity)
-  @Override
-  protected ResponseEntity<Object> handleMethodArgumentNotValid(
-      MethodArgumentNotValidException ex,
-      HttpHeaders headers,
-      HttpStatusCode status,
-      WebRequest request) {
+  // Record/Class nội bộ 2: Cấu trúc lỗi đơn giản cho Custom/BaseException (errorCode: message)
+  private record SimpleErrorDetail(String errorCode, String message) {}
 
-    String path = request.getDescription(false);
-    Map<String, Object> body = new LinkedHashMap<>();
-    body.put("timestamp", LocalDateTime.now());
-    body.put("status", status.value());
-
-    List<String> errors =
+  // 1. Xử lý lỗi Validation (MethodArgumentNotValidException)
+  // Trả về HTTP 422 (UNPROCESSABLE_ENTITY) với danh sách lỗi chi tiết
+  @ExceptionHandler(value = MethodArgumentNotValidException.class)
+  public ResponseEntity<BaseResponse<?>> handlingValidationException(
+      MethodArgumentNotValidException ex) {
+    // 1. Ánh xạ lỗi thành cấu trúc chi tiết List<FieldErrorDetail>
+    List<FieldErrorDetail> validationErrors =
         ex.getBindingResult().getAllErrors().stream()
-            .map(DefaultMessageSourceResolvable::getDefaultMessage)
+            .map(
+                error -> {
+                  String fieldName =
+                      error instanceof FieldError fieldError
+                          ? fieldError.getField()
+                          : error.getObjectName();
+                  String errorMessage = error.getDefaultMessage();
+                  return new FieldErrorDetail(fieldName, errorMessage);
+                })
             .collect(Collectors.toList());
 
-    body.put("errors", errors);
-    body.put("path", path.replace("uri=", "")); // Tối ưu hóa path hiển thị
-    return new ResponseEntity<>(body, status);
+    // 2. Trả về phản hồi lỗi Validation (422) qua ApiResponseBuilder
+    return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY)
+        .body(ApiResponseBuilder.error("Validation failed", validationErrors));
   }
 
-  // 2. Gộp TẤT CẢ các Custom Exception (Handlers 2, 3, 4, 5, 6, 7) vào một Handler duy nhất
-  // đều kế thừa từ BaseException hoặc có cấu trúc interface chung để lấy HttpStatus và ErrorCode.
-  @ExceptionHandler({
-    ConstraintViolationException.class,
-    EntityNotFoundException.class,
-    BadRequestException.class,
-    ConflictException.class,
-    ForbiddenException.class,
-    ResourceNotFoundException.class,
-    UnauthorizedException.class
-  })
-  public ResponseEntity<Object> handleCustomExceptions(
-      BaseException ex, HttpServletRequest request) {
-    Map<String, Object> body = buildErrorBody(ex, request.getRequestURI());
-    return new ResponseEntity<>(body, ex.getHttpStatus());
+  // 2. Xử lý TẤT CẢ Custom Exception (BaseException và các lớp kế thừa như ConflictException)
+  // Trả về Status Code được định nghĩa trong Exception (400, 401, 403, 409, 404, etc.)
+  @ExceptionHandler(value = BaseException.class)
+  public ResponseEntity<BaseResponse<?>> handlingBaseException(BaseException ex) {
+
+    // 1. Tạo đối tượng lỗi đơn giản từ BaseException để điền vào trường 'errors'
+    SimpleErrorDetail errorDetail =
+        new SimpleErrorDetail(ex.getErrorCode().toString(), ex.getMessage());
+
+    // 2. Trả về phản hồi lỗi nghiệp vụ qua ApiResponseBuilder
+    return ResponseEntity.status(ex.getHttpStatus())
+        .body(ApiResponseBuilder.error(ex.getMessage(), errorDetail));
   }
 
-  // 3. Bắt tất cả lỗi còn lại - GIỮ NGUYÊN
+  // 3. Bắt tất cả lỗi còn lại (Internal Server Error)
+  // Trả về HTTP 500
   @ExceptionHandler(Exception.class)
-  public ResponseEntity<Object> handleAll(Exception ex, HttpServletRequest request) {
-    Map<String, Object> body = new LinkedHashMap<>();
-    body.put("timestamp", LocalDateTime.now());
-    body.put("status", HttpStatus.INTERNAL_SERVER_ERROR.value());
-    body.put("errorCode", "INTERNAL_SERVER_ERROR"); // Cung cấp mã lỗi chung
-    body.put("message", "An unexpected error occurred. Please try again later."); // Thông báo chung
-    body.put("path", request.getRequestURI());
-    return new ResponseEntity<>(body, HttpStatus.INTERNAL_SERVER_ERROR);
+  public ResponseEntity<BaseResponse<?>> handleAll(Exception ex, HttpServletRequest request) {
+    // Log lỗi chi tiết ở đây: logger.error("Internal Server Error: ", ex);
+
+    SimpleErrorDetail errorDetail =
+        new SimpleErrorDetail(
+            "INTERNAL_SERVER_ERROR",
+            ex.getMessage() != null ? ex.getMessage() : "An unexpected error occurred.");
+
+    return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+        .body(
+            ApiResponseBuilder.error(
+                "An unexpected error occurred. Please try again later.", errorDetail));
   }
 }
