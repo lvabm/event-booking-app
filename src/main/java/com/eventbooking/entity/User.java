@@ -7,7 +7,11 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
+import java.util.Collection;
 import java.util.List;
 
 @EqualsAndHashCode(callSuper = true)
@@ -16,7 +20,7 @@ import java.util.List;
 @Data
 @Entity
 @Table(name = "users")
-public class User extends BaseEntity {
+public class User extends BaseEntity implements UserDetails {
 
   @Column(name = "full_name", nullable = false)
   private String fullName;
@@ -38,4 +42,14 @@ public class User extends BaseEntity {
 
   @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
   private Reminder reminder;
+
+  @Override
+  public Collection<? extends GrantedAuthority> getAuthorities() {
+    return List.of(new SimpleGrantedAuthority(role.name()));
+  }
+
+  @Override
+  public String getUsername() {
+    return this.email;
+  }
 }
