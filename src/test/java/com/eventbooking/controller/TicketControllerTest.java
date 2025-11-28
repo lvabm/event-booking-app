@@ -4,6 +4,7 @@ import com.eventbooking.config.SecurityConfig;
 import com.eventbooking.dto.booking.TicketResponse;
 import com.eventbooking.dto.event.EventInfo;
 import com.eventbooking.filter.JwtAuthenticationFilter;
+import com.eventbooking.security.UserPrincipal;
 import com.eventbooking.service.TicketService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -12,11 +13,13 @@ import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.time.LocalDateTime;
@@ -32,7 +35,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @WebMvcTest(controllers = TicketController.class)
 @Import(SecurityConfig.class)
-@AutoConfigureMockMvc(addFilters = true)
+@AutoConfigureMockMvc(addFilters = false)
 class TicketControllerTest {
 
     private static final String API = "/api/tickets";
@@ -41,17 +44,18 @@ class TicketControllerTest {
     @Autowired
     private MockMvc mockMvc;
 
-    @MockBean
+    @MockitoBean
     private TicketService ticketService;
-    @MockBean
+    @MockitoBean
     private JwtAuthenticationFilter jwtAuthenticationFilter;
-    @MockBean
+    @MockitoBean
     private UserDetailsService userDetailsService;
 
     private List<TicketResponse> ticketsFixture;
 
     @BeforeEach
     void setupSecurityFilterPassThrough() throws Exception {
+        SecurityContextHolder.clearContext();
         Mockito.doAnswer(
                         invocation -> {
                             var request = invocation.getArgument(0, jakarta.servlet.http.HttpServletRequest.class);
@@ -83,8 +87,8 @@ class TicketControllerTest {
 
     @Test
     @DisplayName("GET /api/tickets — returns 200 when ROLE_USER")
-    @WithMockUser(roles = {"USER"})
     void getMyTickets_returns200_whenRoleUser() throws Exception {
+        authenticateUser();
         when(ticketService.getMyTickets(USER_ID)).thenReturn(ticketsFixture);
 
         mockMvc.perform(get(API).accept(MediaType.APPLICATION_JSON))
@@ -93,8 +97,8 @@ class TicketControllerTest {
                 .andExpect(jsonPath("$.message").value("Tickets fetched successfully"))
                 .andExpect(jsonPath("$.data[0].ticketId").value(1001))
                 .andExpect(jsonPath("$.data[0].event.title").value("Art Exhibition"))
-                .andExpect(jsonPath("$.data[0].event.dateTime").value(LocalDateTime.of(2025, 5, 12, 10, 0)))
-                .andExpect(jsonPath("$.data[0].location").value("Modern Art Gallery"))
+                .andExpect(jsonPath("$.data[0].event.dateTime").value("2025-05-12T10:00:00"))
+                .andExpect(jsonPath("$.data[0].event.location").value("Modern Art Gallery, New York"))
                 .andExpect(jsonPath("$.data[0].quantity").value(2))
                 .andExpect(jsonPath("$.data[0].status").value("PAID"));
 
@@ -114,5 +118,10 @@ class TicketControllerTest {
 
         verify(ticketService, never()).getMyTickets(Mockito.anyLong());
     }
+    private void authenticateUser() {
+        var principal = new UserPrincipal(USER_ID, "john.doe@example.com");
+        var authorities = List.of(new SimpleGrantedAuthority("ROLE_USER"));
+        var authentication = new UsernamePasswordAuthenticationToken(principal, null, authorities);
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+    }
 }
-

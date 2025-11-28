@@ -2,11 +2,13 @@ package com.eventbooking.exception;
 
 import com.eventbooking.common.base.BaseException;
 import jakarta.servlet.http.HttpServletRequest;
-import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindException;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -40,20 +42,13 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
       HttpHeaders headers,
       HttpStatusCode status,
       WebRequest request) {
+    return buildValidationErrorResponse(ex.getBindingResult());
+  }
 
-    String path = request.getDescription(false);
-    Map<String, Object> body = new LinkedHashMap<>();
-    body.put("timestamp", LocalDateTime.now());
-    body.put("status", status.value());
 
-    List<String> errors =
-        ex.getBindingResult().getAllErrors().stream()
-            .map(DefaultMessageSourceResolvable::getDefaultMessage)
-            .collect(Collectors.toList());
-
-    body.put("errors", errors);
-    body.put("path", path.replace("uri=", "")); // Tối ưu hóa path hiển thị
-    return new ResponseEntity<>(body, status);
+  protected ResponseEntity<Object> handleBindException(
+      BindException ex, HttpHeaders headers, HttpStatus status, WebRequest request) {
+    return buildValidationErrorResponse(ex.getBindingResult());
   }
 
   // 2. Gộp TẤT CẢ các Custom Exception (Handlers 2, 3, 4, 5, 6, 7) vào một Handler duy nhất
@@ -91,5 +86,35 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     body.put("message", "An unexpected error occurred. Please try again later."); // Thông báo chung
     body.put("path", request.getRequestURI());
     return new ResponseEntity<>(body, HttpStatus.INTERNAL_SERVER_ERROR);
+  }
+
+  private ResponseEntity<Object> buildValidationErrorResponse(BindingResult bindingResult) {
+    List<Map<String, String>> errors =
+        bindingResult.getFieldErrors().stream()
+            .map(fieldError -> {
+                Map<String, String> errorMap = new LinkedHashMap<>();
+                errorMap.put("field", fieldError.getField());
+                errorMap.put("message", fieldError.getDefaultMessage());
+                return errorMap;
+            })
+            .collect(Collectors.toList());
+
+    // include global errors if needed
+    errors.addAll(
+        bindingResult.getGlobalErrors().stream()
+            .map(
+                error ->{
+                    Map<String, String> errorMap = new LinkedHashMap<>();
+                    errorMap.put("field", error.getObjectName());
+                    errorMap.put("message", error.getDefaultMessage());
+                    return errorMap;
+                })
+            .collect(Collectors.toList()));
+
+    Map<String, Object> body = new LinkedHashMap<>();
+    body.put("success", false);
+    body.put("message", "Validation failed");
+    body.put("errors", errors);
+    return new ResponseEntity<>(body, HttpStatus.UNPROCESSABLE_ENTITY);
   }
 }
