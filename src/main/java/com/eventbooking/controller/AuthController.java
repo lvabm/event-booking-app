@@ -1,8 +1,7 @@
 package com.eventbooking.controller;
 
 import com.eventbooking.common.base.BaseResponse;
-import com.eventbooking.dto.auth.AuthResponse;
-import com.eventbooking.dto.auth.LoginRequest;
+import com.eventbooking.dto.auth.*;
 import com.eventbooking.service.AuthService;
 import com.eventbooking.util.ApiResponseBuilder;
 import jakarta.validation.Valid;
@@ -20,16 +19,20 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/auth")
 public class AuthController {
 
-  private final AuthService authService;
+    private final AuthService authService;
 
-  @PostMapping("/login")
-  public ResponseEntity<BaseResponse<AuthResponse>> login(
-      @Valid @RequestBody LoginRequest request) {
-    
-    AuthResponse authResponse = authService.login(request);
+    @PostMapping("/register")
+    public ResponseEntity<BaseResponse<RegisterResponse>> register(
+            @Valid @RequestBody RegisterRequest registerRequest) {
+        RegisterResponse data = authService.register(registerRequest);
+        return ResponseEntity.ok(ApiResponseBuilder.success("Registration successful", data));
+    }
 
-    return ResponseEntity.ok(
-        ApiResponseBuilder.success("Login successful", authResponse));
-  }
+    @PostMapping("/login")
+    public ResponseEntity<BaseResponse<LoginResponse>> login(
+            @Valid @RequestBody LoginRequest loginRequest) {
+        LoginResponse data = authService.login(loginRequest);
+        return ResponseEntity.ok(ApiResponseBuilder.success("Login successful", data));
+    }
 }
 

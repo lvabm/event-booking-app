@@ -1,10 +1,11 @@
 package com.eventbooking.controller;
 
-import com.eventbooking.config.SecurityConfig;
+import com.eventbooking.common.constant.Role;
+import com.eventbooking.config.SpringSecurityConfig;
 import com.eventbooking.dto.booking.TicketResponse;
 import com.eventbooking.dto.event.EventInfo;
-import com.eventbooking.filter.JwtAuthenticationFilter;
-import com.eventbooking.security.UserPrincipal;
+import com.eventbooking.entity.User;
+import com.eventbooking.security.JwtAuthenticationFilter;
 import com.eventbooking.service.TicketService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -34,8 +35,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(controllers = TicketController.class)
-@Import(SecurityConfig.class)
-@AutoConfigureMockMvc(addFilters = false)
+@Import(SpringSecurityConfig.class)
+@AutoConfigureMockMvc(addFilters = true)
 class TicketControllerTest {
 
     private static final String API = "/api/tickets";
@@ -56,12 +57,14 @@ class TicketControllerTest {
     @BeforeEach
     void setupSecurityFilterPassThrough() throws Exception {
         SecurityContextHolder.clearContext();
+        // Mock filter để pass through khi có authentication trong SecurityContext
         Mockito.doAnswer(
                         invocation -> {
                             var request = invocation.getArgument(0, jakarta.servlet.http.HttpServletRequest.class);
                             var response =
                                     invocation.getArgument(1, jakarta.servlet.http.HttpServletResponse.class);
                             var chain = invocation.getArgument(2, jakarta.servlet.FilterChain.class);
+
                             chain.doFilter(request, response);
                             return null;
                         })
@@ -119,9 +122,13 @@ class TicketControllerTest {
         verify(ticketService, never()).getMyTickets(Mockito.anyLong());
     }
     private void authenticateUser() {
-        var principal = new UserPrincipal(USER_ID, "john.doe@example.com");
+        User user = new User();
+        user.setId(USER_ID);
+        user.setEmail("john.doe@example.com");
+        user.setRole(Role.USER);
+        
         var authorities = List.of(new SimpleGrantedAuthority("ROLE_USER"));
-        var authentication = new UsernamePasswordAuthenticationToken(principal, null, authorities);
+        var authentication = new UsernamePasswordAuthenticationToken(user, null, authorities);
         SecurityContextHolder.getContext().setAuthentication(authentication);
     }
 }

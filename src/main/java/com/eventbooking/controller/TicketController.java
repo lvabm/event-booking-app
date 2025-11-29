@@ -2,8 +2,7 @@ package com.eventbooking.controller;
 
 import com.eventbooking.common.base.BaseResponse;
 import com.eventbooking.dto.booking.TicketResponse;
-import com.eventbooking.exception.UnauthorizedException;
-import com.eventbooking.security.UserPrincipal;
+import com.eventbooking.entity.User;
 import com.eventbooking.service.TicketService;
 import com.eventbooking.util.ApiResponseBuilder;
 import lombok.RequiredArgsConstructor;
@@ -26,12 +25,7 @@ public class TicketController {
 
   @GetMapping
   public ResponseEntity<BaseResponse<List<TicketResponse>>> getMyTickets(
-      @AuthenticationPrincipal UserPrincipal currentUser) {
-
-    if (currentUser == null) {
-      throw new UnauthorizedException(
-          "Unauthorized – Please login to access this resource");
-    }
+      @AuthenticationPrincipal User currentUser) {
 
     List<TicketResponse> tickets = ticketService.getMyTickets(currentUser.getId());
 

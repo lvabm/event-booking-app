@@ -1,8 +1,8 @@
 package com.eventbooking.controller;
 
-import com.eventbooking.config.SecurityConfig;
+import com.eventbooking.config.SpringSecurityConfig;
 import com.eventbooking.dto.event.EventResponse;
-import com.eventbooking.filter.JwtAuthenticationFilter;
+import com.eventbooking.security.JwtAuthenticationFilter;
 import com.eventbooking.service.EventService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -34,7 +34,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(controllers = EventController.class)
-@Import(SecurityConfig.class)
+@Import(SpringSecurityConfig.class)
 @AutoConfigureMockMvc(addFilters = true)
 class EventControllerTest {
 
