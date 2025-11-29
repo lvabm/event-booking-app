@@ -10,12 +10,14 @@ spring:
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: jdbc:mysql://localhost:3306/event_booking_app?useSSL=false&serverTimezone=UTC&characterEncoding=UTF-8&allowPublicKeyRetrieval=true
     username: root
-    password: "@An6tc52005"
+    password: "Admin@123"
 
   jpa:
     defer-datasource-initialization: true
     hibernate:
-      ddl-auto: create
+
+      ddl-auto: update
+
 
     show-sql: true
     properties:

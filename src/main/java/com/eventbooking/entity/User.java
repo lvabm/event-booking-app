@@ -22,34 +22,38 @@ import java.util.List;
 @Table(name = "users")
 public class User extends BaseEntity implements UserDetails {
 
-  @Column(name = "full_name", nullable = false)
-  private String fullName;
+    @Column(name = "full_name", nullable = false)
+    private String fullName;
 
-  @Column(nullable = false, unique = true)
-  private String email;
+    @Column(nullable = false, unique = true)
+    private String email;
 
-  @Column(nullable = false)
-  private String password;
 
-  private String avatar;
+    @Column(nullable = false)
+    private String password;
 
-  @Enumerated(EnumType.STRING)
-  private Role role = Role.USER;
 
-  // Quan hệ
-  @OneToMany(mappedBy = "user")
-  private List<Booking> bookings;
+    private String avatar;
 
-  @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
-  private Reminder reminder;
+    @Enumerated(EnumType.STRING)
+    private Role role = Role.USER;
 
-  @Override
-  public Collection<? extends GrantedAuthority> getAuthorities() {
-    return List.of(new SimpleGrantedAuthority(role.name()));
-  }
+    // Quan hệ
+    @OneToMany(mappedBy = "user")
+    private List<Booking> bookings;
 
-  @Override
-  public String getUsername() {
-    return this.email;
-  }
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
+    private Reminder reminder;
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return List.of(new SimpleGrantedAuthority(role.name()));
+    }
+
+    @Override
+    public String getUsername() {
+        return this.email;
+    }
+
+
 }

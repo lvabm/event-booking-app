@@ -19,11 +19,18 @@
 -- Table: `users`
 -- Columns: id, full_name, email, password, avatar, role, created_at
 -- ================================
-INSERT INTO `users` (`id`, `full_name`, `email`, `password`, `avatar`, `role`, `created_at`) VALUES (1, 'Nguyen Van A', 'user1@example.com', '$2a$10$hash1', NULL, 'USER', '2025-01-01 10:00:00');
-INSERT INTO `users` (`id`, `full_name`, `email`, `password`, `avatar`, `role`, `created_at`) VALUES (2, 'Tran Thi B', 'user2@example.com', '$2a$10$hash2', NULL, 'USER', '2025-01-02 11:00:00');
-INSERT INTO `users` (`id`, `full_name`, `email`, `password`, `avatar`, `role`, `created_at`) VALUES (3, 'Le Van C', 'user3@example.com', '$2a$10$hash3', NULL, 'USER', '2025-01-03 12:00:00');
-INSERT INTO `users` (`id`, `full_name`, `email`, `password`, `avatar`, `role`, `created_at`) VALUES (4, 'Pham Thi D', 'user4@example.com', '$2a$10$hash4', NULL, 'USER', '2025-01-04 13:00:00');
-INSERT INTO `users` (`id`, `full_name`, `email`, `password`, `avatar`, `role`, `created_at`) VALUES (5, 'Lê Văn An', 'admin@example.com', '$2a$10$hashAdmin', NULL, 'ADMIN', '2025-01-05 14:00:00');
+-- Password cho tất cả users: password123
+-- QUAN TRỌNG: Hash BCrypt cần được generate mới cho password "password123"
+-- Chạy: mvn compile exec:java -Dexec.mainClass="com.eventbooking.util.PasswordHashGenerator"
+-- Sau đó copy hash và update vào đây hoặc chạy SQL UPDATE trực tiếp trong database
+-- 
+-- Hash tạm thời (CẦN THAY THẾ bằng hash hợp lệ):
+-- Để test, hãy chạy SQL UPDATE trong database với hash mới được generate
+INSERT INTO `users` (`id`, `full_name`, `email`, `password`, `avatar`, `role`, `created_at`) VALUES (1, 'Nguyen Van A', 'user1@example.com', '$2a$10$0Om.lUnjY7p2EP7O9GbtPu7Jh5ZW8MgCSFRTdBrSMXv0hSoL212JC', NULL, 'USER', '2025-01-01 10:00:00');
+INSERT INTO `users` (`id`, `full_name`, `email`, `password`, `avatar`, `role`, `created_at`) VALUES (2, 'Tran Thi B', 'user2@example.com', '$2a$10$0Om.lUnjY7p2EP7O9GbtPu7Jh5ZW8MgCSFRTdBrSMXv0hSoL212JC', NULL, 'USER', '2025-01-02 11:00:00');
+INSERT INTO `users` (`id`, `full_name`, `email`, `password`, `avatar`, `role`, `created_at`) VALUES (3, 'Le Van C', 'user3@example.com', '$2a$10$0Om.lUnjY7p2EP7O9GbtPu7Jh5ZW8MgCSFRTdBrSMXv0hSoL212JC', NULL, 'USER', '2025-01-03 12:00:00');
+INSERT INTO `users` (`id`, `full_name`, `email`, `password`, `avatar`, `role`, `created_at`) VALUES (4, 'Pham Thi D', 'user4@example.com', '$2a$10$0Om.lUnjY7p2EP7O9GbtPu7Jh5ZW8MgCSFRTdBrSMXv0hSoL212JC', NULL, 'USER', '2025-01-04 13:00:00');
+INSERT INTO `users` (`id`, `full_name`, `email`, `password`, `avatar`, `role`, `created_at`) VALUES (5, 'Lê Văn An', 'admin@example.com', '$2a$10$0Om.lUnjY7p2EP7O9GbtPu7Jh5ZW8MgCSFRTdBrSMXv0hSoL212JC', NULL, 'ADMIN', '2025-01-05 14:00:00');
 
 
 -- ================================
