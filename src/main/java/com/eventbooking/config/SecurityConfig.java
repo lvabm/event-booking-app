@@ -24,12 +24,12 @@ public class SecurityConfig {
     JwtService jwtService;
 
     @Bean
-    public SecurityFilterChain filterChain (HttpSecurity http) {
+    public SecurityFilterChain filterChain (HttpSecurity http) throws Exception {
         http.csrf(AbstractHttpConfigurer::disable);
 
         http.authorizeHttpRequests(authorize -> authorize
                 .requestMatchers(HttpMethod.POST, PUBLIC_ENDPOINTS).permitAll()
-                //.anyRequest().permitAll()
+//                .anyRequest().permitAll()
                 .anyRequest().authenticated()
         );
 
@@ -37,8 +37,7 @@ public class SecurityConfig {
                 oauth2.jwt(jwtConfigurer -> jwtConfigurer
                                 .jwtAuthenticationConverter(jwtAuthenticationConverter())
                                 .decoder(jwtService))
-                        .authenticationEntryPoint(new JwtAuthenticationEntryPoint())
-                        .accessDeniedHandler(new JwtAccessDeniedHandler()));
+                        .authenticationEntryPoint(new JwtAuthenticationEntryPoint()));
 
         return http.build();
     }
@@ -46,7 +45,7 @@ public class SecurityConfig {
     @Bean
     public JwtAuthenticationConverter jwtAuthenticationConverter() {
         JwtGrantedAuthoritiesConverter gac = new JwtGrantedAuthoritiesConverter();
-        gac.setAuthorityPrefix("");
+        gac.setAuthorityPrefix("ROLE_");
         gac.setAuthoritiesClaimName("scope");
 
         JwtAuthenticationConverter converter = new JwtAuthenticationConverter();

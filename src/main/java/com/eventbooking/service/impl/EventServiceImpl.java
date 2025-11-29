@@ -32,11 +32,10 @@ public class EventServiceImpl implements EventService {
 
   @Override
   public EventDetailsResponse create(EventRequest request) {
-    Event event = mapper.toEntity(request);
-
-    BigDecimal[] coords = geocodingService.getCoordinates(event.getLocation()).orElseThrow(() ->
+    BigDecimal[] coords = geocodingService.getCoordinates(request.location()).orElseThrow(() ->
             new BadRequestException("Location not existed!"));
 
+    Event event = mapper.toEntity(request);
     event.setLatitude(coords[0]);
     event.setLongitude(coords[1]);
 
@@ -48,13 +47,10 @@ public class EventServiceImpl implements EventService {
     Event event = repo.findById(id).orElseThrow(() ->
             new EntityNotFoundException(ErrorCode.EVENT_NOT_FOUND,"Event not found"));
 
-    mapper.toEntity(request, event);
-
-    String location = event.getLocation();
-
-    BigDecimal[] coords = geocodingService.getCoordinates(location).orElseThrow(() ->
+    BigDecimal[] coords = geocodingService.getCoordinates(event.getLocation()).orElseThrow(() ->
             new BadRequestException("Location not existed!"));
 
+    mapper.toEntity(event, request);
     event.setLatitude(coords[0]);
     event.setLongitude(coords[1]);
 

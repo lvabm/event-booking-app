@@ -8,10 +8,11 @@ import org.mapstruct.MappingTarget;
 import org.mapstruct.Named;
 
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 
 @Mapper(componentModel = "spring")
 public interface EventMapper {
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "longitude", ignore = true)
     @Mapping(target = "latitude", ignore = true)
     @Mapping(target = "updatedAt", ignore = true)
@@ -19,18 +20,20 @@ public interface EventMapper {
     @Mapping(target = "dateTime", source = "dateTime", qualifiedByName = "stringToLocalDate")
     Event toEntity(EventRequest request);
 
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "longitude", ignore = true)
     @Mapping(target = "latitude", ignore = true)
     @Mapping(target = "updatedAt", ignore = true)
     @Mapping(target = "bookings", ignore = true)
     @Mapping(target = "dateTime", source = "dateTime", qualifiedByName = "stringToLocalDate")
-    void toEntity(EventRequest request, @MappingTarget Event event);
+    void toEntity( @MappingTarget Event event, EventRequest request);
 
     EventDetailsResponse toResponse(Event event);
 
     @Named("stringToLocalDate")
     default LocalDate stringToLocalDate(String dateTime) {
         if (dateTime == null || dateTime.isBlank()) return null;
-        return LocalDate.parse(dateTime, DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+        return LocalDate.parse(dateTime);
     }
 }

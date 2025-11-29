@@ -4,6 +4,7 @@ import com.eventbooking.common.base.BaseEntity;
 import com.eventbooking.common.constant.PaymentStatus;
 import jakarta.persistence.*;
 import lombok.*;
+import lombok.experimental.SuperBuilder;
 
 import java.math.BigDecimal;
 
@@ -12,7 +13,7 @@ import java.math.BigDecimal;
 @NoArgsConstructor
 @Data
 @Entity
-@Builder
+@SuperBuilder
 @Table(name = "payments")
 public class Payment extends BaseEntity {
 

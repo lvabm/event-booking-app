@@ -24,7 +24,7 @@ public class PaymentController {
 
     @PostMapping
     public ResponseEntity<BaseResponse<PaymentResponse>> processPayment (@Valid @RequestBody PaymentRequest request) {
-        return ResponseEntity.status(201)
-                .body(ApiResponseBuilder.success("Payment successful", service.processPayment(request)));
+        return ResponseEntity.ok(ApiResponseBuilder
+                .success("Payment successful", service.processPayment(request)));
     }
 }

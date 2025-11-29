@@ -3,10 +3,8 @@ package com.eventbooking.entity;
 import com.eventbooking.common.base.BaseEntity;
 import com.eventbooking.common.constant.Role;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
+import lombok.*;
+import lombok.experimental.SuperBuilder;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
@@ -19,6 +17,7 @@ import java.util.List;
 @Data
 @Entity
 @Table(name = "users")
+@SuperBuilder
 public class User extends BaseEntity implements UserDetails {
 
   @Column(name = "full_name", nullable = false)

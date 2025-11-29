@@ -10,16 +10,17 @@ import com.eventbooking.entity.Event;
 import com.eventbooking.entity.Payment;
 import com.eventbooking.entity.User;
 import com.eventbooking.exception.EntityNotFoundException;
+import com.eventbooking.exception.UnauthorizedException;
 import com.eventbooking.mapper.BookingMapper;
 import com.eventbooking.repository.BookingRepository;
 import com.eventbooking.repository.EventRepository;
 import com.eventbooking.repository.UserRepository;
 import com.eventbooking.service.BookingService;
-import com.eventbooking.service.JwtService;
 import com.eventbooking.service.UserService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -31,28 +32,34 @@ import java.util.List;
 public class BookingServiceImpl implements BookingService {
   BookingRepository bookingRepo;
   EventRepository eventRepo;
+  UserRepository userRepo;
 
   BookingMapper mapper;
 
-  UserService userService;
 
   @Override
   public BookingResponse create(BookingCreateRequest request) {
-//    User user = userService.getCurrentUser();
-    User user = null;
+    var authen = SecurityContextHolder.getContext().getAuthentication();
+
+    if (authen == null || authen.getPrincipal() == null) {
+      throw new UnauthorizedException("Unauthorized - please login and try again");
+    }
+
+    Object principal = authen.getPrincipal();
+
+    User user = userRepo.findByEmail(principal.toString())
+            .orElseThrow(() -> new UnauthorizedException("Unauthorized - please login and try again"));
 
     Event event = eventRepo.findById(request.eventId())
             .orElseThrow(() -> new EntityNotFoundException(ErrorCode.EVENT_NOT_FOUND, "Event not found"));
 
     BigDecimal totalPrice = event.getPrice().multiply(new BigDecimal(request.quantity()));
 
-    Payment payment = new Payment();
-    Booking booking = new Booking(user, event, payment);
-    payment.setAmount(totalPrice);
+    Booking booking = new Booking(user, event, new Payment());
 
     mapper.toEntity(booking, request);
-    booking.setStatus(BookingStatus.PENDING);
     booking.setTotalPrice(totalPrice);
+    booking.setStatus(BookingStatus.PENDING);
 
     return mapper.toBookingResponse(bookingRepo.save(booking));
   }

@@ -2,17 +2,17 @@ package com.eventbooking.entity;
 
 import com.eventbooking.common.base.BaseEntity;
 import com.eventbooking.common.constant.BookingStatus;
+import com.eventbooking.common.constant.PaymentStatus;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
+import lombok.*;
+import lombok.experimental.SuperBuilder;
 
 import java.math.BigDecimal;
 
 @EqualsAndHashCode(callSuper = true)
 @AllArgsConstructor
 @NoArgsConstructor
+@SuperBuilder
 @Data
 @Entity
 @Table(name = "bookings")
@@ -32,6 +32,7 @@ public class Booking extends BaseEntity {
   @Column(name = "total_price", precision = 10, scale = 2, nullable = false)
   private BigDecimal totalPrice;
 
+  @Builder.Default
   @Enumerated(EnumType.STRING)
   private BookingStatus status = BookingStatus.PENDING;
 
@@ -44,5 +45,7 @@ public class Booking extends BaseEntity {
     this.payment = payment;
 
     payment.setBooking(this);
+    payment.setAmount(totalPrice);
+    payment.setStatus(PaymentStatus.FAILED);
   }
 }

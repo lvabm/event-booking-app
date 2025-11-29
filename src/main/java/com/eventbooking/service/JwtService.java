@@ -55,7 +55,7 @@ public class JwtService implements JwtDecoder {
                 .issueTime(new Date())
                 .expirationTime(Date.from(expire))
                 .jwtID(UUID.randomUUID().toString())
-                .claim("scope", "ROLE_" + user.getRole())
+                .claim("scope", user.getRole())
                 .build();
 
         Payload payload = new Payload(jwtClaimsSet.toJSONObject());

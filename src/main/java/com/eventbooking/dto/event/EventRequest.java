@@ -18,7 +18,7 @@ public record EventRequest (
         String location,
 
         @NotNull(message = "Price is required")
-        @DecimalMin(value = "0.0", message = "Price must be >= 0")
+        @DecimalMin(value = "0.00", message = "Price must be >= 0")
         BigDecimal price,
 
         @Size(max = 1000, message = "Description must be less than 1000 characters")

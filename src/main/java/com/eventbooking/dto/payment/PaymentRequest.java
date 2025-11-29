@@ -7,20 +7,20 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 
 public record PaymentRequest (
-        @NotNull(message = "FIELD_EMPTY")
-        @Min(value = 1, message = "INVALID_FIELD_FORMAT")
+        @NotNull(message = "Booking ID is required")
+        @Min(value = 1, message = "Booking ID must be greater than 0")
         Long bookingId,
 
-        @NotBlank(message = "FIELD_EMPTY")
-        @Pattern(regexp = RegexPattern.CARD_NUMBER, message = "INVALID_FIELD_FORMAT")
+        @NotBlank(message = "Card number is required")
+        @Pattern(regexp = RegexPattern.CARD_NUMBER, message = "Invalid card number format")
         String cardNumber,
 
-        @NotBlank(message = "FIELD_EMPTY")
-        @Pattern(regexp = RegexPattern.CVV, message = "INVALID_FIELD_FORMAT")
+        @NotBlank(message = "CVV is required")
+        @Pattern(regexp = RegexPattern.CVV, message = "Invalid CVV format")
         String cvv,
 
-        @NotBlank(message = "FIELD_EMPTY")
-        @Pattern(regexp = RegexPattern.CARD_EXPIRER, message = "INVALID_FIELD_FORMAT")
+        @NotBlank(message = " Expiry date is required")
+        @Pattern(regexp = RegexPattern.CARD_EXPIRER, message = "Invalid expiry format")
         String expiry
 
 ){}
