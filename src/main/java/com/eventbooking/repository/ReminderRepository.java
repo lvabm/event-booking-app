@@ -3,4 +3,9 @@ package com.eventbooking.repository;
 import com.eventbooking.entity.Reminder;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface ReminderRepository extends JpaRepository<Reminder, Long> {}
+import java.util.Optional;
+
+public interface ReminderRepository extends JpaRepository<Reminder, Long> {
+
+    Optional<Reminder> findByUser_Id(Long id);
+}

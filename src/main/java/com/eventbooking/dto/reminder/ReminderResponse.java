@@ -1,3 +1,12 @@
 package com.eventbooking.dto.reminder;
 
-public class ReminderResponse {}
+
+import lombok.*;
+
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+public class ReminderResponse {
+
+    private Boolean eventReminder;
+}
