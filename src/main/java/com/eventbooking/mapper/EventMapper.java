@@ -10,7 +10,6 @@ import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 import org.mapstruct.Named;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Mapper(componentModel = "spring")

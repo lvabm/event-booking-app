@@ -2,6 +2,7 @@ package com.eventbooking.service.impl;
 
 import com.eventbooking.common.constant.BookingStatus;
 import com.eventbooking.common.constant.ErrorCode;
+import com.eventbooking.common.constant.PaymentStatus;
 import com.eventbooking.dto.payment.PaymentRequest;
 import com.eventbooking.dto.payment.PaymentResponse;
 import com.eventbooking.entity.Booking;
@@ -43,6 +44,8 @@ public class PaymentServiceImpl implements PaymentService {
                     .amount(booking.getTotalPrice())
                     .booking(booking)
                     .build()));
+
+    payment.setStatus(PaymentStatus.PAID);
 
     return paymentMapper.toResponse(paymentRepo.save(payment));
   }

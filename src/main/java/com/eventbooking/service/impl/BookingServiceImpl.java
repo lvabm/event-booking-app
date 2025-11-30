@@ -41,10 +41,11 @@ public class BookingServiceImpl implements BookingService {
 
     BigDecimal totalPrice = event.getPrice().multiply(new BigDecimal(request.quantity()));
 
-    Booking booking = new Booking(user, event, new Payment());
+    Booking booking = new Booking(user, event, new Payment(totalPrice));
 
     mapper.toEntity(booking, request);
     booking.setTotalPrice(totalPrice);
+    booking.getPayment().setAmount(totalPrice);
     booking.setStatus(BookingStatus.PENDING);
 
     return mapper.toBookingResponse(bookingRepo.save(booking));

@@ -27,4 +27,8 @@ public class Payment extends BaseEntity {
   @Builder.Default
   @Enumerated(EnumType.STRING)
   private PaymentStatus status = PaymentStatus.PAID;
+
+  public Payment(BigDecimal amount) {
+    this.amount = amount;
+  }
 }

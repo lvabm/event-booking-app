@@ -135,15 +135,10 @@ public class GlobalExceptionHandler {
   @ExceptionHandler(AccessDeniedException.class)
     public ResponseEntity<BaseResponse<?>> handleAccessDeniedException(
         AccessDeniedException ex, HttpServletRequest request) {
-        SimpleErrorDetail errorDetail =
-            new SimpleErrorDetail(
-                "ACCESS_DENIED",
-                ex.getMessage() != null ? ex.getMessage() : "You do not have permission to access this resource.");
-
         return ResponseEntity.status(HttpStatus.FORBIDDEN)
             .body(
                 ApiResponseBuilder.error(
-                    "Forbidden – You do not have permission to perform this action", errorDetail));
+                    "Forbidden – You do not have permission to perform this action", null));
     }
 
   private ResponseEntity<Object> buildValidationErrorResponse(BindingResult bindingResult) {
