@@ -3,6 +3,10 @@ package com.eventbooking.entity;
 import com.eventbooking.common.base.BaseEntity;
 import com.eventbooking.common.constant.Role;
 import jakarta.persistence.*;
+import lombok.*;
+import lombok.experimental.SuperBuilder;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -20,27 +24,26 @@ import java.util.List;
 @Data
 @Entity
 @Table(name = "users")
+@SuperBuilder
 public class User extends BaseEntity implements UserDetails {
 
-    @Column(name = "full_name", nullable = false)
-    private String fullName;
+  @Column(name = "full_name", nullable = false)
+  private String fullName;
 
-    @Column(nullable = false, unique = true)
-    private String email;
+  @Column(nullable = false, unique = true)
+  private String email;
 
+  @Column(nullable = false)
+  private String password; // BCrypt hashed
 
-    @Column(nullable = false)
-    private String password;
+  private String avatar;
 
+  @Enumerated(EnumType.STRING)
+  private Role role = Role.USER;
 
-    private String avatar;
-
-    @Enumerated(EnumType.STRING)
-    private Role role = Role.USER;
-
-    // Quan hệ
-    @OneToMany(mappedBy = "user")
-    private List<Booking> bookings;
+  // Quan hệ
+  @OneToMany(mappedBy = "user")
+  private List<Booking> bookings;
 
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
     private Reminder reminder;
@@ -54,6 +57,4 @@ public class User extends BaseEntity implements UserDetails {
     public String getUsername() {
         return this.email;
     }
-
-
 }

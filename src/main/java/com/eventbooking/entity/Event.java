@@ -3,6 +3,9 @@ package com.eventbooking.entity;
 import com.eventbooking.common.base.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
+import lombok.experimental.FieldDefaults;
+import lombok.experimental.SuperBuilder;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -13,37 +16,40 @@ import java.util.List;
 @NoArgsConstructor
 @Data
 @Entity
+@SuperBuilder
 @Table(name = "events")
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public class Event extends BaseEntity {
 
-  @Column(nullable = false)
-  private String title;
+    @Column(nullable = false)
+    String title;
 
-  @Column(name = "date_time", nullable = false)
-  private LocalDateTime dateTime;
+    @Column(name = "date_time", nullable = false)
+    LocalDateTime dateTime;
 
-  @Column(nullable = false)
-  private String location;
+    @Column(nullable = false)
+    String location;
 
-  @Column(nullable = false, precision = 10, scale = 8)
-  private BigDecimal latitude;
+    @Column(precision = 10, scale = 8, nullable = false)
+    BigDecimal latitude;
 
-  @Column(nullable = false, precision = 11, scale = 8)
-  private BigDecimal longitude;
+    @Column(precision = 11, scale = 8, nullable = false)
+    BigDecimal longitude;
 
-  @Column(precision = 10, scale = 2)
-  private BigDecimal price = BigDecimal.ZERO;
+    @Builder.Default
+    @Column(precision = 10, scale = 2)
+    BigDecimal price = new BigDecimal(0);
 
-  @Column(columnDefinition = "TEXT")
-  private String description;
+    @Column(columnDefinition = "TEXT")
+    String description;
 
-  @Column(name = "image_url")
-  private String imageUrl;
+    @Column(length = 512, name = "image_url")
+    String imageUrl;
 
-  @Column(name = "updated_at")
-  private LocalDateTime updatedAt;
+    @UpdateTimestamp
+    @Column(name = "updated_at")
+    LocalDateTime updatedAt;
 
-  // Quan hệ
-  @OneToMany(mappedBy = "event")
-  private List<Booking> bookings;
+    @OneToMany(mappedBy = "event", cascade = CascadeType.ALL, orphanRemoval = true)
+    List<Booking> bookings;
 }

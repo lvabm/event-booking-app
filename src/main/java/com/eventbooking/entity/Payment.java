@@ -3,10 +3,8 @@ package com.eventbooking.entity;
 import com.eventbooking.common.base.BaseEntity;
 import com.eventbooking.common.constant.PaymentStatus;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
+import lombok.*;
+import lombok.experimental.SuperBuilder;
 
 import java.math.BigDecimal;
 
@@ -15,6 +13,7 @@ import java.math.BigDecimal;
 @NoArgsConstructor
 @Data
 @Entity
+@SuperBuilder
 @Table(name = "payments")
 public class Payment extends BaseEntity {
 
@@ -25,6 +24,7 @@ public class Payment extends BaseEntity {
   @Column(nullable = false, precision = 10, scale = 2)
   private BigDecimal amount;
 
+  @Builder.Default
   @Enumerated(EnumType.STRING)
   private PaymentStatus status = PaymentStatus.PAID;
 }

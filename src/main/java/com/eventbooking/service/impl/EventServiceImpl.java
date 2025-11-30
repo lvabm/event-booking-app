@@ -1,42 +1,73 @@
 package com.eventbooking.service.impl;
 
+import com.eventbooking.common.constant.ErrorCode;
+import com.eventbooking.dto.event.EventDetailsResponse;
+import com.eventbooking.dto.event.EventRequest;
 import com.eventbooking.common.constant.EventListType;
-import com.eventbooking.dto.event.EventCreateRequest;
 import com.eventbooking.dto.event.EventResponse;
 import com.eventbooking.dto.event.EventSearchCriteria;
-import com.eventbooking.dto.event.EventUpdateRequest;
 import com.eventbooking.entity.Event;
 import com.eventbooking.mapper.EventMapper;
+import com.eventbooking.exception.BadRequestException;
+import com.eventbooking.exception.EntityNotFoundException;
 import com.eventbooking.repository.EventRepository;
 import com.eventbooking.repository.projection.NearbyEventProjection;
 import com.eventbooking.service.EventService;
+import com.eventbooking.service.GeocodingService;
+import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 import java.time.LocalDateTime;
+import java.math.BigDecimal;
 
-@RequiredArgsConstructor
 @Service
+@RequiredArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class EventServiceImpl implements EventService {
+  EventRepository eventRepo;
+  EventMapper eventMapper;
 
-  private final EventRepository eventRepository;
-  private final EventMapper eventMapper;
+  GeocodingService geocodingService;
 
   @Override
-  public EventResponse create(EventCreateRequest request) {
-    return null;
+  public EventDetailsResponse create(EventRequest request) {
+    BigDecimal[] coords = geocodingService.getCoordinates(request.location()).orElseThrow(() ->
+            new BadRequestException("Location not existed!"));
+
+    Event event = eventMapper.toEntity(request);
+    event.setLatitude(coords[0]);
+    event.setLongitude(coords[1]);
+
+    return eventMapper.toDetailsResponse(eventRepo.save(event));
   }
 
   @Override
-  public EventResponse update(Long id, EventUpdateRequest request) {
-    return null;
+  public EventDetailsResponse update(Long id, EventRequest request) {
+    Event event = eventRepo.findById(id).orElseThrow(() ->
+            new EntityNotFoundException(ErrorCode.EVENT_NOT_FOUND,"Event not found"));
+
+    BigDecimal[] coords = geocodingService.getCoordinates(event.getLocation()).orElseThrow(() ->
+            new BadRequestException("Location not existed!"));
+
+    eventMapper.toEntity(event, request);
+    event.setLatitude(coords[0]);
+    event.setLongitude(coords[1]);
+
+    return eventMapper.toDetailsResponse(eventRepo.save(event));
   }
 
   @Override
-  public void delete(Long id) {}
+  public void delete(Long id) {
+    Event event = eventRepo.findById(id).orElseThrow(() ->
+            new EntityNotFoundException(ErrorCode.EVENT_NOT_FOUND,"Event not found"));
+
+    eventRepo.delete(event);
+  }
 
   @Override
   public Page<EventResponse> search(EventSearchCriteria criteria, Pageable pageable) {
@@ -45,24 +76,27 @@ public class EventServiceImpl implements EventService {
 
     Page<Event> events;
     if (type == EventListType.POPULAR) {
-      events = eventRepository.findPopularEvents(keyword, pageable);
+      events = eventRepo.findPopularEvents(keyword, pageable);
     } else if (type == EventListType.UPCOMING) {
-      events = eventRepository.findUpcomingEvents(LocalDateTime.now(), keyword, pageable);
+      events = eventRepo.findUpcomingEvents(LocalDateTime.now(), keyword, pageable);
     } else if (type == EventListType.NEARBY) {
       if (!criteria.hasUserCoordinates()) {
         throw new IllegalArgumentException("User coordinates are required for nearby search");
       }
       return findNearbyEvents(criteria, keyword, pageable);
     } else {
-      events = eventRepository.findAllWithSearch(keyword, pageable);
+      events = eventRepo.findAllWithSearch(keyword, pageable);
     }
 
     return events.map(eventMapper::toResponse);
   }
 
   @Override
-  public EventResponse getById(Long id) {
-    return null;
+  public EventDetailsResponse getById(Long id) {
+    Event event = eventRepo.findById(id).orElseThrow(() ->
+            new EntityNotFoundException(ErrorCode.EVENT_NOT_FOUND,"Event not found"));
+
+    return eventMapper.toDetailsResponse(event);
   }
 
   private Page<EventResponse> findNearbyEvents(
@@ -71,7 +105,7 @@ public class EventServiceImpl implements EventService {
         criteria.getRadiusKm() != null ? criteria.getRadiusKm() : EventSearchCriteria.DEFAULT_RADIUS_KM;
 
     Page<NearbyEventProjection> resultPage =
-        eventRepository.findNearbyEvents(
+        eventRepo.findNearbyEvents(
             keyword,
             criteria.getUserLatitude(),
             criteria.getUserLongitude(),
