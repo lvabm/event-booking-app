@@ -46,7 +46,6 @@ public class SpringSecurityConfig {
                 .authorizeHttpRequests(
                         auth ->
                                 auth.requestMatchers("/api/auth/**").permitAll()
-                                        .requestMatchers(HttpMethod.GET, "/api/events").permitAll()
                                         .anyRequest().authenticated())
                 // 4. Cấu hình Provider
                 .authenticationProvider(authenticationProvider())

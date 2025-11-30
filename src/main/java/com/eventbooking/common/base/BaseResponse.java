@@ -17,6 +17,5 @@ public class BaseResponse<T> {
   String message;
   T data;
   Object errors;
-  @Builder.Default
-  Instant timestamp = Instant.now();
+  Instant timestamp;
 }

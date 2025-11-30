@@ -4,6 +4,7 @@ import com.eventbooking.dto.event.EventResponse;
 import com.eventbooking.dto.event.EventRequest;
 import com.eventbooking.dto.event.EventDetailsResponse;
 import com.eventbooking.entity.Event;
+import com.eventbooking.repository.EventRepository;
 import com.eventbooking.repository.projection.NearbyEventProjection;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;

@@ -22,6 +22,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithAnonymousUser;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
@@ -301,6 +302,7 @@ public class EventControllerTest {
     // listEvent tests
     // ==================================================================================
     @Test
+    @WithMockUser(roles = "USER")
     @DisplayName("GET /api/events — returns 200 with valid params")
     void listEvents_returns200_whenRequestIsValid() throws Exception {
         EventResponse event =
@@ -309,9 +311,9 @@ public class EventControllerTest {
                         .title("Art Exhibition")
                         .dateTime(LocalDateTime.of(2025, 5, 12, 10, 0))
                         .location("Modern Art Gallery, New York")
-//                        .price(BigDecimal.valueOf(25.0))
-//                        .description("Lorem ipsum dolor sit amet...")
-//                        .imageUrl("https://cdn.example.com/events/art_exhibition.jpg")
+                        .price(BigDecimal.valueOf(25.0))
+                        .description("Lorem ipsum dolor sit amet...")
+                        .imageUrl("https://cdn.example.com/events/art_exhibition.jpg")
                         .build();
 
         when(eventService.search(any(), any(Pageable.class)))
@@ -336,6 +338,7 @@ public class EventControllerTest {
     }
 
     @Test
+    @WithMockUser(roles = "USER")
     @DisplayName("GET /api/events — returns 422 when type is invalid")
     void listEvents_returns422_whenTypeInvalid() throws Exception {
         mockMvc
@@ -350,6 +353,7 @@ public class EventControllerTest {
     }
 
     @Test
+    @WithMockUser(roles = "USER")
     @DisplayName("GET /api/events — returns 422 when size is invalid")
     void listEvents_returns422_whenSizeInvalid() throws Exception {
         mockMvc
@@ -364,6 +368,7 @@ public class EventControllerTest {
     }
 
     @Test
+    @WithMockUser(roles = "USER")
     @DisplayName("GET /api/events — returns 422 when page is invalid")
     void listEvents_returns422_whenPageInvalid() throws Exception {
         mockMvc

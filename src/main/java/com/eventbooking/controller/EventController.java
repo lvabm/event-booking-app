@@ -57,6 +57,7 @@ public class EventController {
             ApiResponseBuilder.success("Event detail fetched successfully", service.getById(id)));
   }
 
+  @PreAuthorize("isAuthenticated()")
   @GetMapping
   public ResponseEntity<BaseResponse<List<EventResponse>>> listEvents(
           @Valid @ModelAttribute EventListRequest request) {
